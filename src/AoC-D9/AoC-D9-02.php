@@ -25,23 +25,53 @@ function checkNumberFollowsRule(array $numberList, int $searchedNumber): bool {
   return $check;
 }
 
-$numberList = explode("\n",file_get_contents("./input.txt"));
+// Main program.
+$options = getopt("f:p:", ['filePath:', 'preamble:']);
+$filePath = ($options['f']) ?: $options['filePath'];
+$numberList = explode("\n",file_get_contents($filePath));
 $number = NULL;
-$itemsToExtract = 25;
-$startIn = 25;
-for ($index = $startIn; $index < count($numberList); $index++) {
+$itemsToExtract = ($options['p']) ?: $options['preamble'];
+for ($index = $itemsToExtract; $index < count($numberList); $index++) {
   $offset = $index - $itemsToExtract;
   $subNumberList = array_slice($numberList, $offset, $itemsToExtract);
   $check = checkNumberFollowsRule($subNumberList, $numberList[$index]);
   if (!$check) {
-    $number = $numberList[$index];
+    $searchedKey = $index;
+    $searchedNumber = $numberList[$index];
     break;
   }
 }
-if (($number)) {
-  echo "The number that does not follow the rule is: $number\n"; // 41682220
+if (($searchedNumber)) {
+  echo "\nThe number that does not follow the rule is: $searchedNumber"; // 41682220
 }
 else {
-  echo "It was impossible to found the number that does not follow the rule.\n";
+  echo "\nIt was impossible to found the number that does not follow the rule.";
+  return;
+}
+// Remove number from array to avoid processing it.
+unset($numberList[$searchedKey]);
+// Second loop to find the consecutive numbers.
+$sumFirstLast = NULL;
+for ($index = 0; $index < count($numberList); $index++) {
+  $subtotal = $numberList[$index];
+  $subIndex = $index;
+  $subSet = [];
+  $subSet[] = $numberList[$index];
+  while ($subtotal < $searchedNumber) {
+    $subIndex++;
+    $subSet[] = $numberList[$subIndex];
+    $subtotal += $numberList[$subIndex];
+  }
+  if ($subtotal == $searchedNumber) {
+    sort($subSet);
+    $sumFirstLast = $subSet[0] + $subSet[count($subSet) - 1];
+    break;
+  }
+}
+if (($sumFirstLast)) {
+  echo "\n\nThe sum of first and last set of numbers that gets $searchedNumber is: $sumFirstLast\n\n"; // 5388976
+}
+else {
+  echo "\n\nIt was impossible to found a ser of numbers that gets $searchedNumber.\n\n";
 }
 ?>

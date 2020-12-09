@@ -25,11 +25,13 @@ function checkNumberFollowsRule(array $numberList, int $searchedNumber): bool {
   return $check;
 }
 
-$numberList = explode("\n",file_get_contents("./input.txt"));
+// Main program.
+$options = getopt("f:p:", ['filePath:', 'preamble:']);
+$filePath = ($options['f']) ?: $options['filePath'];
+$numberList = explode("\n",file_get_contents($filePath));
 $number = NULL;
-$itemsToExtract = 25;
-$startIn = 25;
-for ($index = $startIn; $index < count($numberList); $index++) {
+$itemsToExtract = ($options['p']) ?: $options['preamble'];
+for ($index = $itemsToExtract; $index < count($numberList); $index++) {
   $offset = $index - $itemsToExtract;
   $subNumberList = array_slice($numberList, $offset, $itemsToExtract);
   $check = checkNumberFollowsRule($subNumberList, $numberList[$index]);
@@ -39,9 +41,9 @@ for ($index = $startIn; $index < count($numberList); $index++) {
   }
 }
 if (($number)) {
-  echo "The number that does not follow the rule is: $number\n"; // 41682220
+  echo "\nThe number that does not follow the rule is: $number\n\n"; // 41682220
 }
 else {
-  echo "It was impossible to found the number that does not follow the rule.\n";
+  echo "\nIt was impossible to found the number that does not follow the rule.\n\n";
 }
 ?>
